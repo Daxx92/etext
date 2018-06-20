@@ -45,6 +45,7 @@
 </template>
 
 <script>
+    /* eslint linebreak-style: ["error", "unix"] */
     import SystemInformation from './LandingPage/SystemInformation';
 
     export default {
