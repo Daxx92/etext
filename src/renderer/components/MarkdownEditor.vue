@@ -12,12 +12,21 @@
             </div>
             <div class="pt-3 pb-1 flex-fill flex-grow-0 text-right">
 
-                <b-button size="sm" variant="primary" @click="toggleEditor">
-                    Toggle Editor
-                </b-button>
-                <b-button size="sm" variant="primary" @click="toggleViewer">
-                    Toggle Viewer
-                </b-button>
+                <toggle-button @change="toggleEditor"
+                               :value="editorVisible"
+                               :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
+                               :width="100"
+                               :sync="true"
+                               :disabled="!viewerVisible"
+
+                />
+
+                <toggle-button @change="toggleViewer"
+                               :value="viewerVisible"
+                               :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
+                               :width="100"
+                               :sync="true"
+                />
 
             </div>
         </div>
