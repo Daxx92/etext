@@ -2,42 +2,62 @@
 
     <div class="container-fluid p-2 h-100">
         <div class="h-100 d-flex bd-highlight align-content-stretch flex-column">
-            <div class="d-flex flex-fill flex-row">
-                <div class=" pr-2" :class="widthClass(viewerVisible)" v-if="editorVisible">
-                    <textarea name="editor" id="editor" class="h-100 form-control" v-model="input"></textarea>
+
+            <div class="flex-fill flex-grow-0 text-right jumbotron p-0 m-0 mb-2">
+
+                <div class="d-block pt-2">
+
+                    <toggle-button @change="toggleEditor"
+                                   :value="editorVisible"
+                                   :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
+                                   :width="100"
+                                   :sync="true"
+                                   :disabled="!viewerVisible"
+
+                    />
+
+                    <toggle-button @change="toggleViewer"
+                                   :value="viewerVisible"
+                                   :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
+                                   :width="100"
+                                   :sync="true"
+                    />
                 </div>
-                <div class="" :class="widthClass(editorVisible)" v-if="viewerVisible">
-                    <div id="html" class="h-100 p-2" v-html="compiledMarkdown"></div>
-                </div>
+
             </div>
-            <div class="pt-3 pb-1 flex-fill flex-grow-0 text-right">
 
-                <toggle-button @change="toggleEditor"
-                               :value="editorVisible"
-                               :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
-                               :width="100"
-                               :sync="true"
-                               :disabled="!viewerVisible"
-
-                />
-
-                <toggle-button @change="toggleViewer"
-                               :value="viewerVisible"
-                               :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
-                               :width="100"
-                               :sync="true"
-                />
-
+            <div class="d-flex flex-fill flex-row">
+                <div class="pr-2" :class="widthClass(viewerVisible)" v-show="editorVisible">
+                    <div class="h-100 rounded" ref="editor"></div>
+                </div>
+                <div class="pt-1 px-2" :class="widthClass(editorVisible)" v-show="viewerVisible">
+                    <div id="html" class="h-100" ref="html"></div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script>
-    import debounce from 'lodash/debounce';
-    import showdown from 'showdown';
+    import CodeMirror from 'codemirror';
+    import marked from 'marked';
+    import highlight from 'highlight.js';
 
-    const converter = new showdown.Converter();
+    import Currying from '@/assets/js/currying';
+    import xml from '@/assets/js/xml';
+    import markdown from '@/assets/js/markdown';
+    import overlay from '@/assets/js/overlay';
+    import gfm from '@/assets/js/gfm';
+    import javascript from '@/assets/js/javascript';
+
+    marked.setOptions({
+      renderer: new marked.Renderer(),
+      gfm: true,
+      breaks: true,
+      highlight(code) {
+        return highlight.highlightAuto(code).value;
+      },
+    });
 
     export default {
       name: 'MarkdownEditor',
@@ -46,20 +66,16 @@
           input: '# Hello, this is me!',
           editorVisible: true,
           viewerVisible: true,
+          darkTheme: true,
+          codeMirror: null,
         };
       },
       computed: {
-        compiledMarkdown() {
-          if (!this.viewerVisible) {
-            return '';
-          }
-          return converter.makeHtml(this.input);
+        mode() {
+          return this.$store.state.mode;
         },
       },
       methods: {
-        update: debounce((e) => {
-          this.input = e.target.value;
-        }, 300),
         widthClass(visible) {
           return visible ? 'w-50' : 'w-100';
         },
@@ -77,12 +93,36 @@
           }
         },
       },
+      mounted() {
+        const editor = this.$refs.editor;
+        const html = this.$refs.html;
+    
+        Currying(CodeMirror)(xml)(markdown)(overlay)(gfm)(javascript);
+
+        this.codeMirror = CodeMirror(editor, {
+          mode: {
+            name: 'gfm',
+          },
+          autoCloseBrackets: true,
+          lineWrapping: true,
+          scrollbarStyle: null,
+          showCursorWhenSelecting: true,
+          theme: 'base16-light',
+        });
+
+        this.codeMirror.on('change', (editor) => {
+          html.innerHTML = marked(editor.getValue());
+        });
+      },
     };
 </script>
 
-<style scoped>
+<style>
+    .CodeMirror {
+        border-radius: 0.25rem !important;
+        height: 100%;
+    }
     #html {
-        box-shadow: 10px 5px 25px 1px rgba(0, 0, 0, 1);
         overflow-y: auto;
     }
 </style>
