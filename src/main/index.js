@@ -1,6 +1,10 @@
-import {app, BrowserWindow, ipcMain} from 'electron' // eslint-disable-line
+import {app, BrowserWindow, ipcMain, dialog} from 'electron'; // eslint-disable-line
+import path from 'path';
 
-const path = require('path');
+import FileManager from './classes/FileManager';
+
+import { FILE_EXTENSION, SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_READ_ERROR, FILE_WRITTEN_ERROR } from '../utils/Constants';
+
 
 /**
  * Set `__static` path to static files in production
@@ -46,61 +50,45 @@ app.on('activate', () => {
   }
 });
 
-/**
+/** *********************************************************************************************
  * File Manager
- */
-ipcMain.on('openFile', (event) => {
-// eslint-disable-next-line import/no-extraneous-dependencies
-  const { dialog } = require('electron');
-  const fs = require('fs');
+ ********************************************************************************************* */
 
-  function readFile(filepath) {
-    fs.readFile(filepath, 'utf-8', (err, data) => {
-      if (err) {
-        alert(`An error ocurred reading the file :${err.message}`);
-        return;
-      }
-
-      // handle the file content
-      event.sender.send('fileData', data);
-    });
-  }
+ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
+  const { dialog } = require('electron'); // eslint-disable-line
 
   dialog.showOpenDialog((fileNames) => {
-    // fileNames is an array that contains all the selected
-    if (fileNames === undefined) {
-      console.log('No file selected');
+    // fileNames is an array that contains all the selected files
+    if (fileNames !== undefined) {
+      // But we are interested in one only
+      const file = fileNames[0];
+      FileManager.readFile(file)
+        .then((data) => {
+          event.sender.send(FILE_READ, data);
+        })
+        .catch((err) => {
+          event.sender.send(FILE_READ_ERROR, err);
+        });
     } else {
-      readFile(fileNames[0]);
+      event.sender.send(FILE_READ_ERROR, 'No file selected');
     }
   });
 });
 
-
-/**
- * File Manager
- */
 // eslint-disable-next-line no-unused-vars
-ipcMain.on('saveFile', (event, fileContents) => {
-// eslint-disable-next-line import/no-extraneous-dependencies
-  const { dialog } = require('electron');
-  const fs = require('fs');
-
-  function saveFile(filepath, fileContents) {
-    fs.writeFileSync(filepath, fileContents, (err, data) => {
-      if (err) {
-        alert(`An error ocurred reading the file :${err.message}`);
-        return;
-      }
-
-      // handle the file content
-      event.sender.send('fileSaved', data);
-    });
-  }
+ipcMain.on(SHOW_SAVE_DIALOG, (event, content) => {
+  const { dialog } = require('electron'); // eslint-disable-line
 
   dialog.showSaveDialog((filePath) => {
-    saveFile(filePath, fileContents);
-    console.log('saved');
+    filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
+
+    FileManager.writeFile(filePath, content)
+      .then(() => {
+        event.sender.send(FILE_WRITTEN);
+      })
+      .catch((err) => {
+        event.sender.send(FILE_WRITTEN_ERROR, err);
+      });
   });
 });
 
