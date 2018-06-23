@@ -3,25 +3,32 @@
     <div class="container-fluid p-2 h-100">
         <div class="h-100 d-flex bd-highlight align-content-stretch flex-column">
 
-            <div class="flex-fill flex-grow-0 text-right jumbotron p-0 m-0 mb-2">
+            <div class="d-block flex-fill flex-grow-0 jumbotron p-1 m-0 mb-2">
 
-                <div class="d-block pt-2">
+                <div class="row">
+                    <div class="col text-left">
+                        <b-button class="m-0" size="sm" variant="success" @click="openFile"> Open File </b-button>
+                        <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File </b-button>
+                    </div>
+                    <div class="col text-right">
+                        <toggle-button class="m-0"
+                                       @change="toggleEditor"
+                                       :value="editorVisible"
+                                       :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
+                                       :width="100"
+                                       :sync="true"
+                                       :disabled="!viewerVisible"
 
-                    <toggle-button @change="toggleEditor"
-                                   :value="editorVisible"
-                                   :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
-                                   :width="100"
-                                   :sync="true"
-                                   :disabled="!viewerVisible"
+                        />
 
-                    />
-
-                    <toggle-button @change="toggleViewer"
-                                   :value="viewerVisible"
-                                   :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
-                                   :width="100"
-                                   :sync="true"
-                    />
+                        <toggle-button class="m-0"
+                                       @change="toggleViewer"
+                                       :value="viewerVisible"
+                                       :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
+                                       :width="100"
+                                       :sync="true"
+                        />
+                    </div>
                 </div>
 
             </div>
@@ -39,6 +46,8 @@
 </template>
 
 <script>
+    import Vue from 'vue';
+
     import CodeMirror from 'codemirror';
     import marked from 'marked';
     import highlight from 'highlight.js';
@@ -49,6 +58,14 @@
     import overlay from '@/assets/js/overlay';
     import gfm from '@/assets/js/gfm';
     import javascript from '@/assets/js/javascript';
+
+    // eslint-disable-next-line import/no-extraneous-dependencies
+    const { ipcRenderer } = require('electron');
+    const bus = new Vue();
+
+    ipcRenderer.on('fileData', (event, data) => {
+      bus.$emit('fileData', data);
+    });
 
     marked.setOptions({
       renderer: new marked.Renderer(),
@@ -63,10 +80,8 @@
       name: 'MarkdownEditor',
       data() {
         return {
-          input: '# Hello, this is me!',
           editorVisible: true,
           viewerVisible: true,
-          darkTheme: true,
           codeMirror: null,
         };
       },
@@ -76,6 +91,16 @@
         },
       },
       methods: {
+        openFile() {
+          ipcRenderer.send('openFile', () => {
+            console.log('Event sent.');
+          });
+        },
+        saveFile() {
+          ipcRenderer.send('saveFile', this.codeMirror.getValue(), () => {
+            console.log('Event sent.');
+          });
+        },
         widthClass(visible) {
           return visible ? 'w-50' : 'w-100';
         },
@@ -94,9 +119,10 @@
         },
       },
       mounted() {
-        const editor = this.$refs.editor;
-        const html = this.$refs.html;
-    
+        const self = this;
+        const editor = self.$refs.editor;
+        const html = self.$refs.html;
+
         Currying(CodeMirror)(xml)(markdown)(overlay)(gfm)(javascript);
 
         this.codeMirror = CodeMirror(editor, {
@@ -113,6 +139,11 @@
         this.codeMirror.on('change', (editor) => {
           html.innerHTML = marked(editor.getValue());
         });
+
+        bus.$on('fileData', (fileContents) => {
+          self.codeMirror.setValue(fileContents);
+          html.innerHTML = marked(fileContents);
+        });
       },
     };
 </script>
@@ -122,6 +153,7 @@
         border-radius: 0.25rem !important;
         height: 100%;
     }
+
     #html {
         overflow-y: auto;
     }
