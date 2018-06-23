@@ -7,7 +7,7 @@
 
                 <div class="row">
                     <div class="col text-left">
-                        <b-button class="m-0" size="sm" variant="success" @click="openFile"> Open File </b-button>
+                        <b-button class="m-0" size="sm" variant="success" @click="open"> Open File </b-button>
                         <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File </b-button>
                     </div>
                     <div class="col text-right">
@@ -46,6 +46,8 @@
 </template>
 
 <script>
+    import { ipcRenderer } from 'electron'; // eslint-disable-line
+
     import Vue from 'vue';
 
     import CodeMirror from 'codemirror';
@@ -59,12 +61,12 @@
     import gfm from '@/assets/js/gfm';
     import javascript from '@/assets/js/javascript';
 
-    // eslint-disable-next-line import/no-extraneous-dependencies
-    const { ipcRenderer } = require('electron');
+    import { SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ } from '../../utils/Constants';
+
     const bus = new Vue();
 
-    ipcRenderer.on('fileData', (event, data) => {
-      bus.$emit('fileData', data);
+    ipcRenderer.on(FILE_READ, (event, data) => {
+      bus.$emit(FILE_READ, data);
     });
 
     marked.setOptions({
@@ -91,14 +93,19 @@
         },
       },
       methods: {
-        openFile() {
-          ipcRenderer.send('openFile', () => {
-            console.log('Event sent.');
+        open() {
+          // eslint-disable-next-line no-console
+          // console.log('open');
+
+          ipcRenderer.send(SHOW_OPEN_DIALOG, () => {
+            // eslint-disable-next-line no-console
+            console.log('Event sent.', SHOW_OPEN_DIALOG);
           });
         },
         saveFile() {
-          ipcRenderer.send('saveFile', this.codeMirror.getValue(), () => {
-            console.log('Event sent.');
+          ipcRenderer.send(SHOW_SAVE_DIALOG, this.codeMirror.getValue(), () => {
+            // eslint-disable-next-line no-console
+            console.log('Event sent.', SHOW_SAVE_DIALOG);
           });
         },
         widthClass(visible) {
@@ -140,7 +147,7 @@
           html.innerHTML = marked(editor.getValue());
         });
 
-        bus.$on('fileData', (fileContents) => {
+        bus.$on(FILE_READ, (fileContents) => {
           self.codeMirror.setValue(fileContents);
           html.innerHTML = marked(fileContents);
         });
