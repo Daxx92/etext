@@ -57,7 +57,7 @@ app.on('activate', () => {
 ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
   const { dialog } = require('electron'); // eslint-disable-line
 
-  dialog.showOpenDialog((fileNames) => {
+  dialog.showOpenDialog(mainWindow, (fileNames) => {
     // fileNames is an array that contains all the selected files
     if (fileNames !== undefined) {
       // But we are interested in one only
@@ -70,7 +70,7 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
           event.sender.send(FILE_READ_ERROR, err);
         });
     } else {
-      event.sender.send(FILE_READ_ERROR, 'No file selected');
+      event.sender.send(FILE_READ, false);
     }
   });
 });
@@ -79,16 +79,23 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
 ipcMain.on(SHOW_SAVE_DIALOG, (event, content) => {
   const { dialog } = require('electron'); // eslint-disable-line
 
-  dialog.showSaveDialog((filePath) => {
-    filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
+  dialog.showSaveDialog(mainWindow, (filePath) => {
+    // Only work if the file was selected
+    if (filePath) {
+      filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
 
-    FileManager.writeFile(filePath, content)
-      .then(() => {
-        event.sender.send(FILE_WRITTEN);
-      })
-      .catch((err) => {
-        event.sender.send(FILE_WRITTEN_ERROR, err);
-      });
+      FileManager.writeFile(filePath, content)
+        .then(() => {
+          // We could write the file
+          event.sender.send(FILE_WRITTEN, true);
+        })
+        .catch((err) => {
+          event.sender.send(FILE_WRITTEN_ERROR, err);
+        });
+    }
+
+    // No file was selected
+    event.sender.send(FILE_WRITTEN, false);
   });
 });
 
