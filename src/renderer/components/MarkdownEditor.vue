@@ -172,23 +172,12 @@
         });
 
         bus.$on(FILE_READ, (fileContents) => {
-          console.log('FILE READ FROM FS');
-
           // Only load contents if a file is selected and read
           if (fileContents !== false) {
-            console.log('CONTENTS EXISTS');
-            self.alert.visible = true;
-            self.alert.variant = 'info';
-            self.alert.text = 'Loading file to editor...';
-
-            setTimeout(() => {
-              console.log('SET VALUE!');
-              // Only write to editor, the on change event parser the markdown!
-              self.codeMirror.setValue(fileContents);
-              self.alert.variant = 'success';
-              self.alert.text = 'File loaded!';
-              this.isLoading = false;
-            }, 10);
+            self.codeMirror.setValue(fileContents);
+            self.alert.variant = 'success';
+            self.alert.text = 'File loaded!';
+            this.isLoading = false;
           } else {
             self.alert.variant = 'warning';
             self.alert.text = 'Select a file to open it in the editor.';
