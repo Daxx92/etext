@@ -1,6 +1,21 @@
 <template>
 
     <div class="container-fluid p-2 h-100">
+
+        <div class="alert-container" v-show="alert.visible">
+            <b-alert dismissible
+                     :variant="alert.variant"
+                     :show="alert.visible"
+                     @dismissed="alert.visible=false"
+            >
+                {{ alert.text }}
+            </b-alert>
+        </div>
+
+        <loading :active.sync="isLoading"
+                 :can-cancel="false"
+                 :is-full-page="true"></loading>
+
         <div class="h-100 d-flex bd-highlight align-content-stretch flex-column">
 
             <div class="d-block flex-fill flex-grow-0 jumbotron p-1 m-0 mb-2">
@@ -47,6 +62,7 @@
 
 <script>
     import { ipcRenderer } from 'electron'; // eslint-disable-line
+    import Loading from 'vue-loading-overlay';
 
     import Vue from 'vue';
 
@@ -61,12 +77,15 @@
     import gfm from '@/assets/js/gfm';
     import javascript from '@/assets/js/javascript';
 
-    import { SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ } from '../../utils/Constants';
+    import { SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN } from '../../utils/Constants';
 
     const bus = new Vue();
 
     ipcRenderer.on(FILE_READ, (event, data) => {
       bus.$emit(FILE_READ, data);
+    });
+    ipcRenderer.on(FILE_WRITTEN, (event, data) => {
+      bus.$emit(FILE_WRITTEN, data);
     });
 
     marked.setOptions({
@@ -80,11 +99,18 @@
 
     export default {
       name: 'MarkdownEditor',
+      components: { Loading },
       data() {
         return {
           editorVisible: true,
           viewerVisible: true,
           codeMirror: null,
+          isLoading: false,
+          alert: {
+            variant: 'success',
+            text: 'Tha friggin text!',
+            visible: false,
+          },
         };
       },
       computed: {
@@ -94,19 +120,12 @@
       },
       methods: {
         open() {
-          // eslint-disable-next-line no-console
-          // console.log('open');
-
-          ipcRenderer.send(SHOW_OPEN_DIALOG, () => {
-            // eslint-disable-next-line no-console
-            console.log('Event sent.', SHOW_OPEN_DIALOG);
-          });
+          this.isLoading = true;
+          ipcRenderer.send(SHOW_OPEN_DIALOG);
         },
         saveFile() {
-          ipcRenderer.send(SHOW_SAVE_DIALOG, this.codeMirror.getValue(), () => {
-            // eslint-disable-next-line no-console
-            console.log('Event sent.', SHOW_SAVE_DIALOG);
-          });
+          this.isLoading = true;
+          ipcRenderer.send(SHOW_SAVE_DIALOG, this.codeMirror.getValue());
         },
         widthClass(visible) {
           return visible ? 'w-50' : 'w-100';
@@ -144,21 +163,76 @@
         });
 
         this.codeMirror.on('change', (editor) => {
-          html.innerHTML = marked(editor.getValue());
+          if (self.viewerVisible) {
+            console.log('Parsing & rendering');
+            html.innerHTML = marked(editor.getValue());
+          } else {
+            console.log('NOT Parsing & rendering');
+          }
         });
 
         bus.$on(FILE_READ, (fileContents) => {
-          self.codeMirror.setValue(fileContents);
-          html.innerHTML = marked(fileContents);
+          console.log('FILE READ FROM FS');
+
+          // Only load contents if a file is selected and read
+          if (fileContents !== false) {
+            console.log('CONTENTS EXISTS');
+            self.alert.visible = true;
+            self.alert.variant = 'info';
+            self.alert.text = 'Loading file to editor...';
+
+            setTimeout(() => {
+              console.log('SET VALUE!');
+              // Only write to editor, the on change event parser the markdown!
+              self.codeMirror.setValue(fileContents);
+              self.alert.variant = 'success';
+              self.alert.text = 'File loaded!';
+              this.isLoading = false;
+            }, 10);
+          } else {
+            self.alert.variant = 'warning';
+            self.alert.text = 'Select a file to open it in the editor.';
+            self.alert.visible = true;
+            this.isLoading = false;
+          }
+        });
+
+        bus.$on(FILE_WRITTEN, (fileWritten) => {
+          if (fileWritten) {
+            self.alert.variant = 'success';
+            self.alert.text = 'File saved!';
+            self.alert.visible = true;
+          } else {
+            self.alert.variant = 'warning';
+            self.alert.text = 'Select a file to save editor contents.';
+            self.alert.visible = true;
+          }
+
+          // eslint-disable-next-line no-console
+          console.log('File written? ', fileWritten);
+    
+          this.isLoading = false;
         });
       },
     };
 </script>
 
 <style>
+
+    @import "~vue-loading-overlay/dist/vue-loading.min.css";
+
     .CodeMirror {
         border-radius: 0.25rem !important;
         height: 100%;
+    }
+
+    .alert-container{
+        position: absolute;
+        z-index: 999999;
+        width: 80%;
+        /* opacity: .8;*/
+        left: 10%;
+        top: 10%;
     }
 
     #html {
