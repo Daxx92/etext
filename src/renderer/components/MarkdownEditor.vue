@@ -22,8 +22,8 @@
 
                 <div class="row">
                     <div class="col text-left">
-                        <b-button class="m-0" size="sm" variant="success" @click="open"> Open File </b-button>
-                        <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File </b-button>
+                        <b-button class="m-0" size="sm" variant="success" @click="open"> Open File</b-button>
+                        <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File</b-button>
                     </div>
                     <div class="col text-right">
                         <toggle-button class="m-0"
@@ -61,23 +61,19 @@
 </template>
 
 <script>
-    import { ipcRenderer } from 'electron'; // eslint-disable-line
+    import {ipcRenderer} from 'electron'; // eslint-disable-line
     import Loading from 'vue-loading-overlay';
 
     import Vue from 'vue';
 
-    import CodeMirror from 'codemirror';
     import marked from 'marked';
     import highlight from 'highlight.js';
 
-    import Currying from '@/assets/js/currying';
-    import xml from '@/assets/js/xml';
-    import markdown from '@/assets/js/markdown';
-    import overlay from '@/assets/js/overlay';
-    import gfm from '@/assets/js/gfm';
-    import javascript from '@/assets/js/javascript';
-
     import { SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN } from '../../utils/Constants';
+
+    const ace = require('brace');
+    require('brace/mode/markdown');
+    require('brace/theme/monokai');
 
     const bus = new Vue();
 
@@ -104,7 +100,7 @@
         return {
           editorVisible: true,
           viewerVisible: true,
-          codeMirror: null,
+          aceEditor: null,
           isLoading: false,
           alert: {
             variant: 'success',
@@ -125,7 +121,7 @@
         },
         saveFile() {
           this.isLoading = true;
-          ipcRenderer.send(SHOW_SAVE_DIALOG, this.codeMirror.getValue());
+          ipcRenderer.send(SHOW_SAVE_DIALOG, this.aceEditor.getValue());
         },
         widthClass(visible) {
           return visible ? 'w-50' : 'w-100';
@@ -145,72 +141,65 @@
         },
       },
       mounted() {
-        const self = this;
-        const editor = self.$refs.editor;
-        const html = self.$refs.html;
+        const editor = this.$refs.editor;
+        const html = this.$refs.html;
 
-        Currying(CodeMirror)(xml)(markdown)(overlay)(gfm)(javascript);
+        this.aceEditor = ace.edit(editor);
+        this.aceEditor.getSession().setMode('ace/mode/markdown');
+        this.aceEditor.setTheme('ace/theme/monokai');
+        this.aceEditor.getSession().setUseWrapMode(true);
+        this.aceEditor.getSession().setWrapLimitRange(80, 100);
+        this.aceEditor.$blockScrolling = Infinity;
 
-        this.codeMirror = CodeMirror(editor, {
-          mode: {
-            name: 'gfm',
-          },
-          autoCloseBrackets: true,
-          lineWrapping: true,
-          scrollbarStyle: null,
-          showCursorWhenSelecting: true,
-          theme: 'base16-light',
-        });
-
-        this.codeMirror.on('change', (editor) => {
-          if (self.viewerVisible) {
-            console.log('Parsing & rendering');
-            html.innerHTML = marked(editor.getValue());
+        this.aceEditor.on('change', () => {
+          if (this.viewerVisible) {
+            // console.log('Parsing & rendering');
+            html.innerHTML = marked(this.aceEditor.getValue());
           } else {
-            console.log('NOT Parsing & rendering');
+            // console.log('NOT Parsing & rendering');
           }
         });
 
         bus.$on(FILE_READ, (fileContents) => {
-          console.log('FILE READ FROM FS');
-
           // Only load contents if a file is selected and read
           if (fileContents !== false) {
-            console.log('CONTENTS EXISTS');
-            self.alert.visible = true;
-            self.alert.variant = 'info';
-            self.alert.text = 'Loading file to editor...';
+            this.aceEditor.setValue(fileContents, -1);
 
-            setTimeout(() => {
-              console.log('SET VALUE!');
-              // Only write to editor, the on change event parser the markdown!
-              self.codeMirror.setValue(fileContents);
-              self.alert.variant = 'success';
-              self.alert.text = 'File loaded!';
-              this.isLoading = false;
-            }, 10);
+            this.alert.visible = true;
+            this.alert.variant = 'success';
+            this.alert.text = 'File loaded!';
+
+            this.isLoading = false;
+    
+            /* ****************************************************
+            * @TODO: Large Files!
+            * Large files have a huge overhead, but somehow ~ 10mb is ok?
+            * Maybe some kind of separator or something that tells us where to split?
+            ***************************************************** */
+            /* console.log(fileContents.length);
+            const l = fileContents.length;
+            const ml = 10000000;
+            const t = l > ml ? fileContents.substring(0, ml) : fileContents;
+            this.aceEditor.setValue(t);
+            this.isLoading = false; */
           } else {
-            self.alert.variant = 'warning';
-            self.alert.text = 'Select a file to open it in the editor.';
-            self.alert.visible = true;
+            this.alert.variant = 'warning';
+            this.alert.text = 'Select a file to open it in the editor.';
+            this.alert.visible = true;
             this.isLoading = false;
           }
         });
 
         bus.$on(FILE_WRITTEN, (fileWritten) => {
           if (fileWritten) {
-            self.alert.variant = 'success';
-            self.alert.text = 'File saved!';
-            self.alert.visible = true;
+            this.alert.variant = 'success';
+            this.alert.text = 'File saved!';
+            this.alert.visible = true;
           } else {
-            self.alert.variant = 'warning';
-            self.alert.text = 'Select a file to save editor contents.';
-            self.alert.visible = true;
+            this.alert.variant = 'warning';
+            this.alert.text = 'Select a file to save editor contents.';
+            this.alert.visible = true;
           }
-
-          // eslint-disable-next-line no-console
-          console.log('File written? ', fileWritten);
-    
           this.isLoading = false;
         });
       },
@@ -221,16 +210,10 @@
 
     @import "~vue-loading-overlay/dist/vue-loading.min.css";
 
-    .CodeMirror {
-        border-radius: 0.25rem !important;
-        height: 100%;
-    }
-
-    .alert-container{
+    .alert-container {
         position: absolute;
         z-index: 999999;
         width: 80%;
-        /* opacity: .8;*/
         left: 10%;
         top: 10%;
     }
