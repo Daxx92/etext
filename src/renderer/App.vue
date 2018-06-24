@@ -14,8 +14,6 @@
   @import '~bootstrap/dist/css/bootstrap.css';
   @import '~bootstrap-vue/dist/bootstrap-vue.css';
 
-  @import '~codemirror/lib/codemirror.css';
-  @import '~codemirror/theme/base16-light.css';
   @import '~highlight.js/styles/ir-black.css';
 
   /* CSS */
