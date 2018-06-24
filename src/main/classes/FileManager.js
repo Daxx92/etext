@@ -6,7 +6,7 @@ export default class FileManager {
   }
 
   static readFile(filePath) {
-    return jetpack.readAsync(filePath);
+    return jetpack.readAsync(filePath, 'utf8');
   }
 
   static writeFile(filePath, content) {
