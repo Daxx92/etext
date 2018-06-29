@@ -54,7 +54,7 @@ app.on('activate', () => {
  * File Manager
  ********************************************************************************************* */
 
-ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
+ipcMain.on(SHOW_OPEN_DIALOG, (event, passphrase) => {
   const { dialog } = require('electron'); // eslint-disable-line
 
   dialog.showOpenDialog(mainWindow, (fileNames) => {
@@ -63,8 +63,9 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
       // But we are interested in one only
       const file = fileNames[0];
       FileManager.readFile(file)
-        .then((data) => {
-          event.sender.send(FILE_READ, data);
+        .then(encryptedContent => FileManager.decryptContent(encryptedContent, passphrase))
+        .then((decryptedContent) => {
+          event.sender.send(FILE_READ, decryptedContent);
         })
         .catch((err) => {
           event.sender.send(FILE_READ_ERROR, err);
@@ -76,7 +77,7 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event) => {
 });
 
 // eslint-disable-next-line no-unused-vars
-ipcMain.on(SHOW_SAVE_DIALOG, (event, content) => {
+ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
   const { dialog } = require('electron'); // eslint-disable-line
 
   dialog.showSaveDialog(mainWindow, (filePath) => {
@@ -84,7 +85,10 @@ ipcMain.on(SHOW_SAVE_DIALOG, (event, content) => {
     if (filePath) {
       filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
 
-      FileManager.writeFile(filePath, content)
+      FileManager.encryptContent(payload.text, payload.passphrase)
+        .then((encrypted) => {
+          FileManager.writeFile(filePath, encrypted);
+        })
         .then(() => {
           // We could write the file
           event.sender.send(FILE_WRITTEN, true);

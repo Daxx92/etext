@@ -24,6 +24,7 @@
                     <div class="col text-left">
                         <b-button class="m-0" size="sm" variant="success" @click="open"> Open File</b-button>
                         <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File</b-button>
+                        <b-button class="m-0" size="sm" variant="success" @click="passphraseModal = !passphraseModal"> Set Passphrase </b-button>
                     </div>
                     <div class="col text-right">
                         <toggle-button class="m-0"
@@ -57,6 +58,37 @@
                 </div>
             </div>
         </div>
+
+        <b-modal
+                centered
+                header-bg-variant="dark"
+                header-text-variant="light"
+                v-model="passphraseModal"
+                title="Set Passphares"
+                :ok-only="true"
+                @ok="validatePassphrase"
+        >
+            <p>
+                Set the passphrase for this file. Make sure you remember it as it's necessary to decrypt it!
+            </p>
+
+            <form @submit.stop.prevent="">
+
+                <b-form-group id="passphrase-input"
+                              label="Passphrase:"
+                              label-for="passphrase"
+                              description="At least 8 caracters.">
+                    <b-form-input id="passphrase"
+                                  type="text"
+                                  v-model.trim="passphrase"
+                                  required
+                                  min-length="8"
+                                  placeholder="Enter Passhprase">
+                    </b-form-input>
+                </b-form-group>
+            </form>
+
+        </b-modal>
     </div>
 </template>
 
@@ -107,6 +139,8 @@
             text: 'Tha friggin text!',
             visible: false,
           },
+          passphraseModal: false,
+          passphrase: '',
         };
       },
       computed: {
@@ -116,12 +150,30 @@
       },
       methods: {
         open() {
+          if (!this.isPassphraseValid()) {
+            this.alert.visible = true;
+            this.alert.variant = 'danger';
+            this.alert.text = 'Passphrase has to be set to open the file!';
+            return;
+          }
+
           this.isLoading = true;
-          ipcRenderer.send(SHOW_OPEN_DIALOG);
+          const payload = this.passphrase;
+    
+          ipcRenderer.send(SHOW_OPEN_DIALOG, payload);
         },
         saveFile() {
+          if (!this.isPassphraseValid()) {
+            this.alert.visible = true;
+            this.alert.variant = 'danger';
+            this.alert.text = 'Passphrase has to be set to save the file!';
+            return;
+          }
+
           this.isLoading = true;
-          ipcRenderer.send(SHOW_SAVE_DIALOG, this.aceEditor.getValue());
+          const payload = { text: this.aceEditor.getValue(), passphrase: this.passphrase };
+
+          ipcRenderer.send(SHOW_SAVE_DIALOG, payload);
         },
         widthClass(visible) {
           return visible ? 'w-50' : 'w-100';
@@ -138,6 +190,27 @@
           if (!this.editorVisible && !this.viewerVisible) {
             this.editorVisible = true;
           }
+        },
+        validatePassphrase(event) {
+          event.preventDefault();
+    
+          if (this.isPassphraseValid()) {
+            this.passphraseModal = false;
+
+            this.alert.visible = true;
+            this.alert.variant = 'success';
+            this.alert.text = 'Passphrase Saved';
+
+            return true;
+          }
+
+          this.alert.visible = true;
+          this.alert.variant = 'danger';
+          this.alert.text = 'Passphrase has to be at least 8 characters long';
+          return false;
+        },
+        isPassphraseValid() {
+          return this.passphrase.length >= 8;
         },
       },
       mounted() {
