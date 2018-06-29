@@ -1,6 +1,6 @@
 import crypto2 from 'crypto2';
 
-export default class FileManager {
+export default class EncryptionUtils {
   constructor() {
     this.error = null;
   }
@@ -50,5 +50,14 @@ export default class FileManager {
   static async decryptRSA(encrypted, privateKey) {
     // const key = await crypto2.readPrivateKey(privateKey);
     return crypto2.decrypt.rsa(encrypted, privateKey);
+  }
+
+  static async createRSAKeys() {
+    const { privateKey, publicKey } = await crypto2.createKeyPair();
+
+    return {
+      privateRsaKey: privateKey,
+      publicRsaKey: publicKey,
+    };
   }
 }

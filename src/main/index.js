@@ -2,8 +2,9 @@ import {app, BrowserWindow, ipcMain, dialog} from 'electron'; // eslint-disable-
 import path from 'path';
 
 import FileManager from './classes/FileManager';
+import EncryptionUtils from './classes/EncryptionUtils';
 
-import { FILE_EXTENSION, SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_ERROR } from '../utils/Constants';
+import { FILE_EXTENSION, SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_ERROR, CREATE_RSA_KEYS, RSA_KEYS_CREATED } from '../utils/Constants';
 
 
 /**
@@ -78,7 +79,7 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
 
 // eslint-disable-next-line no-unused-vars
 ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
-  const { dialog } = require('electron'); // eslint-disable-line
+    const { dialog } = require('electron'); // eslint-disable-line
 
   dialog.showSaveDialog(mainWindow, (filePath) => {
     // Only work if the file was selected
@@ -101,6 +102,17 @@ ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
     // No file was selected
     event.sender.send(FILE_WRITTEN, false);
   });
+});
+
+// eslint-disable-next-line no-unused-vars
+ipcMain.on(CREATE_RSA_KEYS, (event) => {
+  EncryptionUtils.createRSAKeys()
+    .then((keys) => {
+      event.sender.send(RSA_KEYS_CREATED, keys);
+    })
+    .catch((err) => {
+      event.sender.send(FILE_ERROR, err);
+    });
 });
 
 /**

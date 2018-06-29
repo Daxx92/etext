@@ -27,6 +27,9 @@
                         <b-button class="m-0" size="sm" variant="success" @click="passphraseModal = !passphraseModal">
                             Encryption Settings
                         </b-button>
+                        <b-button class="m-0" size="sm" variant="success" @click="createRsaKeys">
+                            Create RSA Keys
+                        </b-button>
                     </div>
                     <div class="col text-right">
                         <toggle-button class="m-0"
@@ -125,7 +128,15 @@
     import marked from 'marked';
     import highlight from 'highlight.js';
 
-    import { SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_ERROR } from '../../utils/Constants';
+    import {
+      SHOW_OPEN_DIALOG,
+      SHOW_SAVE_DIALOG,
+      FILE_READ,
+      FILE_WRITTEN,
+      FILE_ERROR,
+      RSA_KEYS_CREATED,
+      CREATE_RSA_KEYS,
+    } from '../../utils/Constants';
 
     const ace = require('brace');
     require('brace/mode/markdown');
@@ -139,9 +150,13 @@
     ipcRenderer.on(FILE_WRITTEN, (event, data) => {
       bus.$emit(FILE_WRITTEN, data);
     });
-    
+
     ipcRenderer.on(FILE_ERROR, (event, data) => {
       bus.$emit(FILE_ERROR, data);
+    });
+
+    ipcRenderer.on(RSA_KEYS_CREATED, (event, data) => {
+      bus.$emit(RSA_KEYS_CREATED, data);
     });
 
     marked.setOptions({
@@ -195,6 +210,10 @@
 
             ipcRenderer.send(SHOW_SAVE_DIALOG, payload);
           }
+        },
+        createRsaKeys() {
+          this.isLoading = true;
+          ipcRenderer.send(CREATE_RSA_KEYS);
         },
         widthClass(visible) {
           return visible ? 'w-50' : 'w-100';
@@ -320,6 +339,16 @@
             this.alert.text = 'Select a file to save editor contents.';
             this.alert.visible = true;
           }
+          this.isLoading = false;
+        });
+
+        bus.$on(RSA_KEYS_CREATED, (keys) => {
+          this.privateRsaKey = keys.privateRsaKey;
+          this.publicRsaKey = keys.publicRsaKey;
+
+          this.alert.variant = 'success';
+          this.alert.text = 'Keys created, you can view them in the "Encryption Settings" window. Please save them somewhere in your pc.';
+          this.alert.visible = true;
           this.isLoading = false;
         });
 
