@@ -25,7 +25,7 @@
                         <b-button class="m-0" size="sm" variant="success" @click="open"> Open File</b-button>
                         <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File</b-button>
                         <b-button class="m-0" size="sm" variant="success" @click="passphraseModal = !passphraseModal">
-                            Set Passphrase
+                            Encryption Settings
                         </b-button>
                     </div>
                     <div class="col text-right">
