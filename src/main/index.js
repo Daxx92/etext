@@ -3,7 +3,7 @@ import path from 'path';
 
 import FileManager from './classes/FileManager';
 
-import { FILE_EXTENSION, SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_READ_ERROR, FILE_WRITTEN_ERROR } from '../utils/Constants';
+import { FILE_EXTENSION, SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_ERROR } from '../utils/Constants';
 
 
 /**
@@ -54,7 +54,7 @@ app.on('activate', () => {
  * File Manager
  ********************************************************************************************* */
 
-ipcMain.on(SHOW_OPEN_DIALOG, (event, passphrase) => {
+ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
   const { dialog } = require('electron'); // eslint-disable-line
 
   dialog.showOpenDialog(mainWindow, (fileNames) => {
@@ -63,12 +63,12 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event, passphrase) => {
       // But we are interested in one only
       const file = fileNames[0];
       FileManager.readFile(file)
-        .then(encryptedContent => FileManager.decryptContent(encryptedContent, passphrase))
+        .then(encryptedContent => FileManager.decryptContent(encryptedContent, payload.privateRsaKey)) // eslint-disable-line max-len
         .then((decryptedContent) => {
           event.sender.send(FILE_READ, decryptedContent);
         })
         .catch((err) => {
-          event.sender.send(FILE_READ_ERROR, err);
+          event.sender.send(FILE_ERROR, err);
         });
     } else {
       event.sender.send(FILE_READ, false);
@@ -85,7 +85,7 @@ ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
     if (filePath) {
       filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
 
-      FileManager.encryptContent(payload.text, payload.passphrase)
+      FileManager.encryptContent(payload.content, payload.passphrase, payload.publicRsaKey)
         .then((encrypted) => {
           FileManager.writeFile(filePath, encrypted);
         })
@@ -94,7 +94,7 @@ ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
           event.sender.send(FILE_WRITTEN, true);
         })
         .catch((err) => {
-          event.sender.send(FILE_WRITTEN_ERROR, err);
+          event.sender.send(FILE_ERROR, err);
         });
     }
 
