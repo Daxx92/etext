@@ -5,13 +5,14 @@ export default class EncryptionUtils {
     this.error = null;
   }
 
-  static async encrypt(content, passphrase, publicRsaKey) {
-    return Promise.all([
-      // Create Password from passphrase
-      crypto2.createPassword(passphrase),
-      // Create random iv
-      crypto2.createIv(),
-    ])
+  static async encrypt(content, publicRsaKey) {
+    return this.randomPassphrase()
+      .then(passphrase => Promise.all([
+        // Create Password from passphrase
+        crypto2.createPassword(passphrase),
+        // Create random iv
+        crypto2.createIv(),
+      ]))
       .then((data) => {
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment#Basic_variable_assignment
         const [password, iv] = data;
@@ -59,5 +60,18 @@ export default class EncryptionUtils {
       privateRsaKey: privateKey,
       publicRsaKey: publicKey,
     };
+  }
+
+  static async randomPassphrase() {
+    return Promise.all([
+      // Create a triple IV which will work as a passphrase
+      crypto2.createIv(),
+      crypto2.createIv(),
+      crypto2.createIv(),
+    ])
+      .then((data) => {
+        const [p1, p2, p3] = data;
+        return `${p1}-${p2}-${p3}`;
+      });
   }
 }
