@@ -34,7 +34,11 @@ export default class EncryptionUtils {
   static async decrypt(content, privateRsaKey) {
     const splitPos = content.indexOf(':');
     const rsaEncrypted = content.substr(0, splitPos);
-    const rsaDecrypted = await this.decryptRSA(rsaEncrypted, privateRsaKey);
+    const rsaDecrypted = await this.decryptRSA(rsaEncrypted, privateRsaKey)
+    // Catch the error
+      .catch(reason => // eslint-disable-line no-unused-vars
+        Promise.reject('Could not decrypt file. Double check rsa keys and file format.'),
+      );
 
     const encrypted = content.substr(splitPos + 1);
     const password = rsaDecrypted.substr(0, rsaDecrypted.indexOf('&'));
