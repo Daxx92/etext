@@ -4,7 +4,18 @@ import path from 'path';
 import FileManager from './classes/FileManager';
 import EncryptionUtils from './classes/EncryptionUtils';
 
-import { FILE_EXTENSION, SHOW_OPEN_DIALOG, SHOW_SAVE_DIALOG, FILE_READ, FILE_WRITTEN, FILE_ERROR, CREATE_RSA_KEYS, RSA_KEYS_CREATED } from '../utils/Constants';
+import {
+  FILE_SAVE_FILTER_OPTIONS,
+  FILE_OPEN_FILTER_OPTIONS,
+  FILE_EXTENSION,
+  SHOW_OPEN_DIALOG,
+  SHOW_SAVE_DIALOG,
+  FILE_READ,
+  FILE_WRITTEN,
+  FILE_ERROR,
+  CREATE_RSA_KEYS,
+  RSA_KEYS_CREATED,
+} from '../utils/Constants';
 
 
 /**
@@ -56,9 +67,12 @@ app.on('activate', () => {
  ********************************************************************************************* */
 
 ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
-  const { dialog } = require('electron'); // eslint-disable-line
+    const {dialog} = require('electron'); // eslint-disable-line
+  const options = {
+    filters: FILE_OPEN_FILTER_OPTIONS,
+  };
 
-  dialog.showOpenDialog(mainWindow, (fileNames) => {
+  dialog.showOpenDialog(mainWindow, options, (fileNames) => {
     // fileNames is an array that contains all the selected files
     if (fileNames !== undefined) {
       // But we are interested in one only
@@ -79,9 +93,14 @@ ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
 
 // eslint-disable-next-line no-unused-vars
 ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
-    const { dialog } = require('electron'); // eslint-disable-line
+    const {dialog} = require('electron'); // eslint-disable-line
 
-  dialog.showSaveDialog(mainWindow, (filePath) => {
+  const options = {
+    filters: FILE_SAVE_FILTER_OPTIONS,
+  };
+
+
+  dialog.showSaveDialog(mainWindow, options, (filePath) => {
     // Only work if the file was selected
     if (filePath) {
       filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);

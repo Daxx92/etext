@@ -1,4 +1,12 @@
-export const FILE_EXTENSION = '.emd';
+export const FILE_EXTENSION = '.etmd';
+export const FILE_OPEN_FILTER_OPTIONS = [
+  { name: 'Encrypted MD', extensions: ['etmd'] },
+  { name: 'OLD Encrypted MD', extensions: ['emd'] },
+];
+export const FILE_SAVE_FILTER_OPTIONS = [
+  FILE_OPEN_FILTER_OPTIONS[0], // Old format is not supported
+];
+
 
 export const CREATE_RSA_KEYS = 'CREATE_RSA_KEYS';
 export const RSA_KEYS_CREATED = 'RSA_KEYS_CREATED';
