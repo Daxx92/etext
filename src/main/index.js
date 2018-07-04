@@ -86,7 +86,7 @@ ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
     if (filePath) {
       filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
 
-      FileManager.encryptContent(payload.content, payload.passphrase, payload.publicRsaKey)
+      FileManager.encryptContent(payload.content, payload.publicRsaKey)
         .then((encrypted) => {
           FileManager.writeFile(filePath, encrypted);
         })

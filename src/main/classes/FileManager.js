@@ -6,8 +6,8 @@ export default class FileManager {
     this.error = null;
   }
 
-  static async encryptContent(content, passphrase, publicRsaKey) {
-    return EncryptionUtils.encrypt(content, passphrase, publicRsaKey);
+  static async encryptContent(content, publicRsaKey) {
+    return EncryptionUtils.encrypt(content, publicRsaKey);
   }
 
   static async decryptContent(content, privateRsaKey) {
