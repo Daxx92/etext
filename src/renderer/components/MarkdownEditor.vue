@@ -24,7 +24,7 @@
                     <div class="col text-left">
                         <b-button class="m-0" size="sm" variant="success" @click="open"> Open File</b-button>
                         <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File</b-button>
-                        <b-button class="m-0" size="sm" variant="success" @click="passphraseModal = !passphraseModal">
+                        <b-button class="m-0" size="sm" variant="success" @click="rsaModal = !rsaModal">
                             Encryption Settings
                         </b-button>
                         <b-button class="m-0" size="sm" variant="success" @click="createRsaKeys">
@@ -68,27 +68,13 @@
                 centered
                 header-bg-variant="dark"
                 header-text-variant="light"
-                v-model="passphraseModal"
-                title="Set Passphares"
+                v-model="rsaModal"
+                title="RSA Keys"
                 :ok-only="true"
                 @ok="validateForm"
         >
 
             <form @submit.stop.prevent="">
-
-                <b-form-group id="passphrase-input"
-                              label="Set the passphrase for this file:"
-                              label-for="passphrase"
-                              description="At least 8 caracters.">
-                    <b-form-input id="passphrase"
-                                  type="text"
-                                  v-model.trim="passphrase"
-                                  required
-                                  min-length="8"
-                                  placeholder="Enter Passhprase">
-                    </b-form-input>
-                </b-form-group>
-
                 <b-form-group id="rsa-private-input"
                               label="RSA Public key"
                               label-for="rsa-private"
@@ -182,8 +168,7 @@
             text: 'Tha friggin text!',
             visible: false,
           },
-          passphraseModal: false,
-          passphrase: '',
+          rsaModal: false,
           publicRsaKey: '',
           privateRsaKey: '',
         };
@@ -204,7 +189,6 @@
             this.isLoading = true;
             const payload = {
               content: this.aceEditor.getValue(),
-              passphrase: this.passphrase,
               publicRsaKey: this.publicRsaKey,
             };
 
@@ -240,18 +224,13 @@
             this.alert.visible = true;
             this.alert.variant = 'success';
             this.alert.text = 'Data saved, you can now open & save files.';
-            this.passphraseModal = false;
+            this.rsaModal = false;
           }
 
           return valid;
         },
         isInputValid() {
-          if (!this.isPassphraseValid) {
-            this.alert.visible = true;
-            this.alert.variant = 'danger';
-            this.alert.text = 'Passphrase has to be set & at least 8 characters long';
-            return false;
-          } else if (!this.isRSAPrivateValid) {
+          if (!this.isRSAPrivateValid) {
             this.alert.visible = true;
             this.alert.variant = 'danger';
             this.alert.text = 'Invalid Private RSA key';
@@ -268,9 +247,6 @@
       computed: {
         mode() {
           return this.$store.state.mode;
-        },
-        isPassphraseValid() {
-          return this.passphrase.length >= 8;
         },
         isRSAPublicValid() {
           return this.publicRsaKey.length >= 5; // Aprox lenght of a key?
@@ -311,16 +287,16 @@
             this.isLoading = false;
 
             /* ****************************************************
-                    * @TODO: Large Files!
-                    * Large files have a huge overhead, but somehow ~ 10mb is ok?
-                    * Maybe some kind of separator or something that tells us where to split?
-                    ***************************************************** */
+                            * @TODO: Large Files!
+                            * Large files have a huge overhead, but somehow ~ 10mb is ok?
+                            * Maybe some kind of separator or something that tells us where to split?
+                            ***************************************************** */
             /* console.log(fileContents.length);
-                    const l = fileContents.length;
-                    const ml = 10000000;
-                    const t = l > ml ? fileContents.substring(0, ml) : fileContents;
-                    this.aceEditor.setValue(t);
-                    this.isLoading = false; */
+                            const l = fileContents.length;
+                            const ml = 10000000;
+                            const t = l > ml ? fileContents.substring(0, ml) : fileContents;
+                            this.aceEditor.setValue(t);
+                            this.isLoading = false; */
           } else {
             this.alert.variant = 'warning';
             this.alert.text = 'Select a file to open it in the editor.';
