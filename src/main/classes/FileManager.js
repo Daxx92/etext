@@ -1,17 +1,8 @@
 import jetpack from 'fs-jetpack';
-import EncryptionUtils from './EncryptionUtils';
 
 export default class FileManager {
   constructor() {
     this.error = null;
-  }
-
-  static async encryptContent(content, publicRsaKey) {
-    return EncryptionUtils.encrypt(content, publicRsaKey);
-  }
-
-  static async decryptContent(content, privateRsaKey) {
-    return EncryptionUtils.decrypt(content, privateRsaKey);
   }
 
   static readFile(filePath) {

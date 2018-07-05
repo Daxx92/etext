@@ -24,7 +24,7 @@ export function registerShowOpenDialogEvent() {
         // But we are interested in one only
         const file = fileNames[0];
         FileManager.readFile(file)
-          .then(encryptedContent => FileManager.decryptContent(encryptedContent, payload.privateRsaKey)) // eslint-disable-line max-len
+          .then(encryptedContent => EncryptionUtils.decrypt(encryptedContent, payload.privateRsaKey)) // eslint-disable-line max-len
           .then((decryptedContent) => {
             event.sender.send(FILE_READ, decryptedContent);
           })
@@ -51,7 +51,7 @@ export function registerShowSaveDialogEvent() {
       if (filePath) {
         filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
 
-        FileManager.encryptContent(payload.content, payload.publicRsaKey)
+        EncryptionUtils.encrypt(payload.content, payload.publicRsaKey)
           .then((encrypted) => {
             FileManager.writeFile(filePath, encrypted);
           })
