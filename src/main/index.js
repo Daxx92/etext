@@ -1,21 +1,7 @@
-import {app, BrowserWindow, ipcMain, dialog} from 'electron'; // eslint-disable-line
+import {app, BrowserWindow} from 'electron'; // eslint-disable-line
 import path from 'path';
 
-import FileManager from './classes/FileManager';
-import EncryptionUtils from './classes/EncryptionUtils';
-
-import {
-  FILE_SAVE_FILTER_OPTIONS,
-  FILE_OPEN_FILTER_OPTIONS,
-  FILE_EXTENSION,
-  SHOW_OPEN_DIALOG,
-  SHOW_SAVE_DIALOG,
-  FILE_READ,
-  FILE_WRITTEN,
-  FILE_ERROR,
-  CREATE_RSA_KEYS,
-  RSA_KEYS_CREATED,
-} from '../utils/Constants';
+import * as FileEvents from './utils/fileEvents';
 
 
 /**
@@ -63,76 +49,11 @@ app.on('activate', () => {
 });
 
 /** *********************************************************************************************
- * File Manager
+ * File Events
  ********************************************************************************************* */
-
-ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
-    const {dialog} = require('electron'); // eslint-disable-line
-  const options = {
-    filters: FILE_OPEN_FILTER_OPTIONS,
-  };
-
-  dialog.showOpenDialog(mainWindow, options, (fileNames) => {
-    // fileNames is an array that contains all the selected files
-    if (fileNames !== undefined) {
-      // But we are interested in one only
-      const file = fileNames[0];
-      FileManager.readFile(file)
-        .then(encryptedContent => FileManager.decryptContent(encryptedContent, payload.privateRsaKey)) // eslint-disable-line max-len
-        .then((decryptedContent) => {
-          event.sender.send(FILE_READ, decryptedContent);
-        })
-        .catch((err) => {
-          event.sender.send(FILE_ERROR, err);
-        });
-    } else {
-      event.sender.send(FILE_READ, false);
-    }
-  });
-});
-
-// eslint-disable-next-line no-unused-vars
-ipcMain.on(SHOW_SAVE_DIALOG, (event, payload) => {
-    const {dialog} = require('electron'); // eslint-disable-line
-
-  const options = {
-    filters: FILE_SAVE_FILTER_OPTIONS,
-  };
-
-
-  dialog.showSaveDialog(mainWindow, options, (filePath) => {
-    // Only work if the file was selected
-    if (filePath) {
-      filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
-
-      FileManager.encryptContent(payload.content, payload.publicRsaKey)
-        .then((encrypted) => {
-          FileManager.writeFile(filePath, encrypted);
-        })
-        .then(() => {
-          // We could write the file
-          event.sender.send(FILE_WRITTEN, true);
-        })
-        .catch((err) => {
-          event.sender.send(FILE_ERROR, err);
-        });
-    }
-
-    // No file was selected
-    event.sender.send(FILE_WRITTEN, false);
-  });
-});
-
-// eslint-disable-next-line no-unused-vars
-ipcMain.on(CREATE_RSA_KEYS, (event) => {
-  EncryptionUtils.createRSAKeys()
-    .then((keys) => {
-      event.sender.send(RSA_KEYS_CREATED, keys);
-    })
-    .catch((err) => {
-      event.sender.send(FILE_ERROR, err);
-    });
-});
+FileEvents.registerShowOpenDialogEvent();
+FileEvents.registerShowSaveDialogEvent();
+FileEvents.registerCreateRsaKeysEvent();
 
 /**
  * Auto Updater
