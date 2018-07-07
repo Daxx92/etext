@@ -4,18 +4,19 @@ import { mergeDeep, getPathFor } from '../../shared/utils/Helpers';
 
 export default class BackgroundTask {
   constructor(file, domReadyEventName, options) {
-    this.url = getPathFor(file);
-
-    this.domReadyEventName = domReadyEventName;
-
+    // Variables
+    const show = process.env.SHOW_BACKGROUND_TASK_WINDOWS === '1';
     const defaultOptions = {
       height: 40,
       width: 40,
       defaultEncoding: 'utf-8',
       nodeIntegration: false,
-      show: false,
+      show,
     };
 
+    // Set fields
+    this.url = getPathFor(file);
+    this.domReadyEventName = domReadyEventName;
     this.options = mergeDeep(defaultOptions, options);
     this.window = null;
   }

@@ -9,6 +9,7 @@
 
 // Set environment for development
 process.env.NODE_ENV = 'development'
+process.env.SHOW_BACKGROUND_TASK_WINDOWS = '1'
 
 // Install `electron-debug` with `devtron`
 require('electron-debug')({ showDevTools: true })

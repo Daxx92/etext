@@ -1,6 +1,7 @@
 'use strict'
 
 process.env.NODE_ENV = 'production'
+process.env.SHOW_BACKGROUND_TASK_WINDOWS = '0'
 
 const { say } = require('cfonts')
 const chalk = require('chalk')
