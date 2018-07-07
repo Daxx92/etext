@@ -7,8 +7,8 @@ export default class BackgroundTask {
     // Variables
     const show = process.env.SHOW_BACKGROUND_TASK_WINDOWS === '1';
     const defaultOptions = {
-      height: 40,
-      width: 40,
+      width: 400,
+      height: 200,
       defaultEncoding: 'utf-8',
       nodeIntegration: false,
       show,
