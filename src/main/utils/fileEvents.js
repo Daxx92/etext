@@ -75,7 +75,7 @@ export function registerShowSaveDialogEvent() {
 export function registerCreateRsaKeysEvent() {
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(CREATE_RSA_KEYS, (event) => {
-    promiseIpc.send('rsa.generate', RsaGenerator.window.webContents)
+    promiseIpc.send(RsaGenerator.eventNames.generate, RsaGenerator.webContents())
       .then((keys) => {
         event.sender.send(RSA_KEYS_CREATED, keys);
       })

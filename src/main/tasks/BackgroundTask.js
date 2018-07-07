@@ -3,7 +3,7 @@ import { BrowserWindow } from 'electron';
 import { mergeDeep, getPathFor } from '../../shared/utils/Helpers';
 
 export default class BackgroundTask {
-  constructor(file, domReadyEventName, options) {
+  constructor(file, domReadyEventName, eventNames, options) {
     // Variables
     const show = process.env.SHOW_BACKGROUND_TASK_WINDOWS === '1';
     const defaultOptions = {
@@ -17,8 +17,17 @@ export default class BackgroundTask {
     // Set fields
     this.url = getPathFor(file);
     this.domReadyEventName = domReadyEventName;
+    this.eventNames = eventNames;
     this.options = mergeDeep(defaultOptions, options);
     this.window = null;
+  }
+
+  windowExists() {
+    return this.window !== null;
+  }
+
+  webContents() {
+    return this.windowExists() ? this.window.webContents : null;
   }
 
   createWindow() {
@@ -29,7 +38,7 @@ export default class BackgroundTask {
   }
 
   destroyWindow() {
-    if (this.window !== null) {
+    if (this.windowExists()) {
       this.window.destroy();
       this.window = null;
     }
