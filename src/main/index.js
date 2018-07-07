@@ -1,8 +1,8 @@
-import {app, BrowserWindow} from 'electron'; // eslint-disable-line
+import {app, BrowserWindow, ipcMain} from 'electron'; // eslint-disable-line
 import path from 'path';
 
 import * as FileEvents from './utils/fileEvents';
-
+import rsaGenerator from './tasks/RsaGenerator';
 
 /**
  * Set `__static` path to static files in production
@@ -30,7 +30,19 @@ function createWindow() {
   mainWindow.loadURL(winURL);
 
   mainWindow.on('closed', () => {
+    // Close rsa window
+    rsaGenerator.close();
+    // Remove reference to main window
     mainWindow = null;
+  });
+
+  /** *********************************************************************************************
+   * Background Tasks processes
+   ********************************************************************************************* */
+  rsaGenerator.createWindow();
+  // eslint-disable-next-line no-unused-vars
+  ipcMain.on('rsa.ready', (event) => {
+    // @TODO: What's the point? How to prevent user to access the app while not done?
   });
 }
 

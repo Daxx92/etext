@@ -1,5 +1,6 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { BrowserWindow, ipcMain, dialog } from 'electron';
+import promiseIpc from 'electron-promise-ipc';
 import {
   CREATE_RSA_KEYS,
   FILE_ERROR,
@@ -10,6 +11,7 @@ import {
 } from '../../utils/Constants';
 import EncryptionUtils from '../../classes/EncryptionUtils';
 import FileManager from '../../classes/FileManager';
+import rsaGenerator from '../tasks/RsaGenerator';
 
 export function registerShowOpenDialogEvent() {
   ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
@@ -73,7 +75,7 @@ export function registerShowSaveDialogEvent() {
 export function registerCreateRsaKeysEvent() {
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(CREATE_RSA_KEYS, (event) => {
-    EncryptionUtils.createRSAKeys()
+    promiseIpc.send('rsa.generate', rsaGenerator.win.webContents)
       .then((keys) => {
         event.sender.send(RSA_KEYS_CREATED, keys);
       })
