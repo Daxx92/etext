@@ -8,8 +8,8 @@ import {
   RSA_KEYS_CREATED, SHOW_OPEN_DIALOG,
   SHOW_SAVE_DIALOG,
 } from '../../utils/Constants';
-import EncryptionUtils from '../classes/EncryptionUtils';
-import FileManager from '../classes/FileManager';
+import EncryptionUtils from '../../classes/EncryptionUtils';
+import FileManager from '../../classes/FileManager';
 
 export function registerShowOpenDialogEvent() {
   ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
