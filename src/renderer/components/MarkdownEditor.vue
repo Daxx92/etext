@@ -122,7 +122,7 @@
       FILE_ERROR,
       RSA_KEYS_CREATED,
       CREATE_RSA_KEYS,
-    } from '../../utils/Constants';
+    } from '../../shared/utils/Constants';
 
     const ace = require('brace');
     require('brace/mode/markdown');

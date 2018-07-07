@@ -8,9 +8,9 @@ import {
   FILE_READ, FILE_SAVE_FILTER_OPTIONS, FILE_WRITTEN,
   RSA_KEYS_CREATED, SHOW_OPEN_DIALOG,
   SHOW_SAVE_DIALOG,
-} from '../../utils/Constants';
-import EncryptionUtils from '../../classes/EncryptionUtils';
-import FileManager from '../../classes/FileManager';
+} from '../../shared/utils/Constants';
+import EncryptionUtils from '../../shared/classes/EncryptionUtils';
+import FileManager from '../../shared/classes/FileManager';
 import rsaGenerator from '../tasks/RsaGenerator';
 
 export function registerShowOpenDialogEvent() {
