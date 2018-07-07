@@ -34,7 +34,7 @@ function createWindow() {
 
 function close() {
   if (rsaGenerator.win !== null) {
-    rsaGenerator.win.close();
+    rsaGenerator.win.destroy();
     rsaGenerator.win = null;
   }
 }
