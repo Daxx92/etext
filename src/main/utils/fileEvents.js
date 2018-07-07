@@ -11,7 +11,7 @@ import {
 } from '../../shared/utils/Constants';
 import EncryptionUtils from '../../shared/classes/EncryptionUtils';
 import FileManager from '../../shared/classes/FileManager';
-import rsaGenerator from '../tasks/RsaGenerator';
+import RsaGenerator from '../tasks/RsaGenerator';
 
 export function registerShowOpenDialogEvent() {
   ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
@@ -75,7 +75,7 @@ export function registerShowSaveDialogEvent() {
 export function registerCreateRsaKeysEvent() {
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(CREATE_RSA_KEYS, (event) => {
-    promiseIpc.send('rsa.generate', rsaGenerator.win.webContents)
+    promiseIpc.send('rsa.generate', RsaGenerator.window.webContents)
       .then((keys) => {
         event.sender.send(RSA_KEYS_CREATED, keys);
       })

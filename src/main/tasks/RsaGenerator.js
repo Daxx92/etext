@@ -1,43 +1,13 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { BrowserWindow } from 'electron';
+import BackgroundTask from './BackgroundTask';
 
 const HTML_FILE = 'rsa-generator.html';
-
-const rsaGenerator = {
-  // eslint-disable-next-line no-use-before-define
-  createWindow,
-  // eslint-disable-next-line no-use-before-define
-  close,
-  win: null,
+const OPTIONS = {
+  height: 600,
+  width: 400,
+  defaultEncoding: 'utf-8',
+  nodeIntegration: false,
+  show: true,
 };
+const DOM_READY_EVENT_NAME = 'rsa.ready';
 
-const url = process.env.NODE_ENV === 'development'
-  ? `http://localhost:9080/${HTML_FILE}`
-  : `file://${__dirname}/${HTML_FILE}`;
-
-function createWindow() {
-  /**
-     * Initial window options
-     */
-  rsaGenerator.win = new BrowserWindow({
-    height: 400,
-    width: 400,
-    defaultEncoding: 'utf-8',
-    nodeIntegration: false,
-    // show: false,
-  });
-
-  rsaGenerator.win.loadURL(url);
-
-  return rsaGenerator.win;
-}
-
-function close() {
-  if (rsaGenerator.win !== null) {
-    rsaGenerator.win.destroy();
-    rsaGenerator.win = null;
-  }
-}
-
-
-export default rsaGenerator;
+export default new BackgroundTask(HTML_FILE, DOM_READY_EVENT_NAME, OPTIONS);
