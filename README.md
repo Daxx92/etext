@@ -1,8 +1,16 @@
-# e-text
+# e-text v-0.3.0
 
-> A text editor with encrypting capabilities
+***Markdown editor with encrypting capabilities***
 
-#### Build Setup
+### Why *e-text*?
+
+**e-text** stands for enctypted text. In the beginning the project was meant to be a simple text editor with encrypting 
+capabilites.
+
+After tinkering with the editor, markdown became a better alternative as it's almost as readable as text (or more as it 
+gives context) and can be rendered as HTML.
+
+### Build Setup
 
 ``` bash
 # install dependencies
