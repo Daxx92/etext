@@ -18,40 +18,35 @@
 
         <div class="h-100 d-flex bd-highlight align-content-stretch flex-column">
 
-            <div class="d-block flex-fill flex-grow-0 jumbotron p-1 m-0 mb-2">
-
-                <div class="row">
-                    <div class="col text-left">
-                        <b-button class="m-0" size="sm" variant="success" @click="open"> Open File</b-button>
-                        <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File</b-button>
-                        <b-button class="m-0" size="sm" variant="success" @click="rsaModal = !rsaModal">
-                            Encryption Settings
-                        </b-button>
-                        <b-button class="m-0" size="sm" variant="success" @click="createRsaKeys">
-                            Create RSA Keys
-                        </b-button>
-                    </div>
-                    <div class="col text-right">
-                        <toggle-button class="m-0"
-                                       @change="toggleEditor"
-                                       :value="editorVisible"
-                                       :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
-                                       :width="100"
-                                       :sync="true"
-                                       :disabled="!viewerVisible"
-
-                        />
-
-                        <toggle-button class="m-0"
-                                       @change="toggleViewer"
-                                       :value="viewerVisible"
-                                       :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
-                                       :width="100"
-                                       :sync="true"
-                        />
-                    </div>
+            <div class="d-flex flex-fill flex-grow-0 rounded p-1 bg-light mb-2">
+                <div class="flex-fill text-left">
+                    <b-button class="m-0" size="sm" variant="success" @click="open"> Open File</b-button>
+                    <b-button class="m-0" size="sm" variant="success" @click="saveFile"> Save File</b-button>
+                    <b-button class="m-0" size="sm" variant="success" @click="rsaModal = !rsaModal">
+                        Encryption Settings
+                    </b-button>
+                    <b-button class="m-0" size="sm" variant="success" @click="createRsaKeys">
+                        Create RSA Keys
+                    </b-button>
                 </div>
+                <div class="flex-fill text-right">
+                    <toggle-button class="m-0"
+                                   @change="toggleEditor"
+                                   :value="editorVisible"
+                                   :labels="{checked: 'Editor: Visible', unchecked: 'Editor: Hidden'}"
+                                   :width="100"
+                                   :sync="true"
+                                   :disabled="!viewerVisible"
 
+                    />
+                    <toggle-button class="m-0"
+                                   @change="toggleViewer"
+                                   :value="viewerVisible"
+                                   :labels="{checked: 'HTML: Visible', unchecked: 'HTML: Hidden'}"
+                                   :width="100"
+                                   :sync="true"
+                    />
+                </div>
             </div>
 
             <div class="d-flex flex-fill flex-row">
