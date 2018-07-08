@@ -1,7 +1,7 @@
 import {app, BrowserWindow, ipcMain} from 'electron'; // eslint-disable-line
 import path from 'path';
 
-import * as FileEvents from './utils/fileEvents';
+import * as FileEvents from './ipc/fileEvents';
 import RsaGenerator from './tasks/RsaGenerator';
 import Encryption from './tasks/Encryption';
 
