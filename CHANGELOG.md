@@ -13,8 +13,8 @@ Better error messages & file filters
 
 #### Issues Solved
 
-- [#11: Editor freezes when creating RSA Keys](https://bitbucket.org/miscdx/etext/issues/11/editor-freezes-when-creating-rsa-keys)
-    - *Commit: [a20aa97c4c46](https://bitbucket.org/miscdx/etext/commits/a20aa97c4c46)*
+- [#11: Editor freezes when creating RSA Keys](https://github.com/Daxx92/etext/issues/11)
+    - *Commit: [a20aa97c4c46](https://github.com/Daxx92/etext/commit/a20aa97c4c46)*
     
 ----
 
@@ -35,10 +35,10 @@ Better error messages & file filters
 
 #### Issues Solved
 
-- [#4: Display files that can be opened](https://bitbucket.org/miscdx/etext/issues/4/display-files-that-can-be-opened)
-    - *Commit: [b4d0ce29f25e](https://bitbucket.org/miscdx/etext/commits/b4d0ce29f25e)*
-- [#8: Editor fails if the file isn't correctly formatted](https://bitbucket.org/miscdx/etext/issues/7/why-ask-the-user-for-a-passphrase)
-    - *Commit: [1748d7becae2](https://bitbucket.org/miscdx/etext/commits/1748d7becae2)*
+- [#4: Display files that can be opened](https://github.com/Daxx92/etext/issues/4)
+    - *Commit: [b4d0ce29f25e](https://github.com/Daxx92/etext/commit/b4d0ce29f25e)*
+- [#8: Editor fails if the file isn't correctly formatted](https://github.com/Daxx92/etext/issues/7)
+    - *Commit: [1748d7becae2](https://github.com/Daxx92/etext/commit/1748d7becae2)*
     
 
 ## 0.2.0 (2018-07-03)
@@ -53,8 +53,8 @@ Added support for AES/RSA file encryption
 - Encrypt AES key with RSA
 
 #### Issues Solved
-- [#7: Why ask the user for a passphrase?](https://bitbucket.org/miscdx/etext/issues/7/why-ask-the-user-for-a-passphrase)
-    - *Commit: [de67f4a71088](https://bitbucket.org/miscdx/etext/commits/de67f4a71088)*
+- [#7: Why ask the user for a passphrase?](https://github.com/Daxx92/etext/issues/7)
+    - *Commit: [de67f4a71088](https://github.com/Daxx92/etext/commit/de67f4a71088)*
 
 ## 0.1.0 (2018-06-27)
 
