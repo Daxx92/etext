@@ -9,9 +9,9 @@ import {
   RSA_KEYS_CREATED, SHOW_OPEN_DIALOG,
   SHOW_SAVE_DIALOG,
 } from '../../shared/utils/Constants';
-import EncryptionUtils from '../../shared/classes/EncryptionUtils';
 import FileManager from '../../shared/classes/FileManager';
 import RsaGenerator from '../tasks/RsaGenerator';
+import Encryption from '../tasks/Encryption';
 
 export function registerShowOpenDialogEvent() {
   ipcMain.on(SHOW_OPEN_DIALOG, (event, payload) => {
@@ -26,9 +26,16 @@ export function registerShowOpenDialogEvent() {
         // But we are interested in one only
         const file = fileNames[0];
         FileManager.readFile(file)
-          .then(encryptedContent => EncryptionUtils.decrypt(encryptedContent, payload.privateRsaKey)) // eslint-disable-line max-len
+          .then((encryptedContent) => {
+            const eventName = Encryption.eventNames.decrypt;
+            const webContents = Encryption.webContents();
+            const privateRsaKey = payload.privateRsaKey;
+
+            return promiseIpc.send(eventName, webContents, encryptedContent, privateRsaKey);
+          })
           .then((decryptedContent) => {
             event.sender.send(FILE_READ, decryptedContent);
+            return Promise.resolve(true);
           })
           .catch((err) => {
             event.sender.send(FILE_ERROR, err);
@@ -53,21 +60,28 @@ export function registerShowSaveDialogEvent() {
       if (filePath) {
         filePath = FileManager.appendExtensionToPath(filePath, FILE_EXTENSION);
 
-        EncryptionUtils.encrypt(payload.content, payload.publicRsaKey)
+        const eventName = Encryption.eventNames.encrypt;
+        const webContents = Encryption.webContents();
+        const content = payload.content;
+        const publicRsaKey = payload.publicRsaKey;
+
+        promiseIpc.send(eventName, webContents, content, publicRsaKey)
           .then((encrypted) => {
             FileManager.writeFile(filePath, encrypted);
+            return Promise.resolve(true);
           })
           .then(() => {
             // We could write the file
             event.sender.send(FILE_WRITTEN, true);
+            return Promise.resolve(true);
           })
           .catch((err) => {
             event.sender.send(FILE_ERROR, err);
           });
+      } else {
+        // No file was selected
+        event.sender.send(FILE_WRITTEN, false);
       }
-
-      // No file was selected
-      event.sender.send(FILE_WRITTEN, false);
     });
   });
 }

@@ -3,6 +3,7 @@ import path from 'path';
 
 import * as FileEvents from './utils/fileEvents';
 import RsaGenerator from './tasks/RsaGenerator';
+import Encryption from './tasks/Encryption';
 
 /**
  * Set `__static` path to static files in production
@@ -11,6 +12,43 @@ import RsaGenerator from './tasks/RsaGenerator';
 if (process.env.NODE_ENV !== 'development') {
     global.__static = path.join(__dirname, '/static').replace(/\\/g, '\\\\') // eslint-disable-line
 }
+
+/** *********************************************************************************************
+ * Background Tasks processes
+ ********************************************************************************************* */
+function initBackgroundProcesses() {
+  RsaGenerator.createWindow();
+  // eslint-disable-next-line no-unused-vars
+  ipcMain.on(RsaGenerator.domReadyEventName, (event) => {
+    // @TODO: What's the point? How to prevent user to access the app while not done?
+    console.log(RsaGenerator.domReadyEventName);
+  });
+
+  Encryption.createWindow();
+  // eslint-disable-next-line no-unused-vars
+  ipcMain.on(Encryption.domReadyEventName, (event) => {
+    // @TODO: What's the point? How to prevent user to access the app while not done?
+    console.log(Encryption.domReadyEventName);
+  });
+}
+function destroyBackgroundProcesses() {
+  // Close rsa window
+  RsaGenerator.destroyWindow();
+  // Close rsa window
+  Encryption.destroyWindow();
+}
+
+/** *********************************************************************************************
+ * File Events
+ ********************************************************************************************* */
+FileEvents.registerShowOpenDialogEvent();
+FileEvents.registerShowSaveDialogEvent();
+FileEvents.registerCreateRsaKeysEvent();
+
+
+/** *********************************************************************************************
+ * APP
+ ********************************************************************************************* */
 
 let mainWindow;
 const winURL = process.env.NODE_ENV === 'development'
@@ -29,20 +67,12 @@ function createWindow() {
 
   mainWindow.loadURL(winURL);
 
+  initBackgroundProcesses();
+
   mainWindow.on('closed', () => {
-    // Close rsa window
-    RsaGenerator.destroyWindow();
+    destroyBackgroundProcesses();
     // Remove reference to main window
     mainWindow = null;
-  });
-
-  /** *********************************************************************************************
-   * Background Tasks processes
-   ********************************************************************************************* */
-  RsaGenerator.createWindow();
-  // eslint-disable-next-line no-unused-vars
-  ipcMain.on(RsaGenerator.domReadyEventName, (event) => {
-    // @TODO: What's the point? How to prevent user to access the app while not done?
   });
 }
 
@@ -59,13 +89,6 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-/** *********************************************************************************************
- * File Events
- ********************************************************************************************* */
-FileEvents.registerShowOpenDialogEvent();
-FileEvents.registerShowSaveDialogEvent();
-FileEvents.registerCreateRsaKeysEvent();
 
 /**
  * Auto Updater

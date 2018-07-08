@@ -25,6 +25,7 @@ let rendererConfig = {
   entry: {
     renderer: path.join(__dirname, '../src/renderer/main.js'),
     'rsa-generator': path.join(__dirname, '../src/renderer/tasks/RsaGenerator.js'),
+    'encryption': path.join(__dirname, '../src/renderer/tasks/Encryption.js'),
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
