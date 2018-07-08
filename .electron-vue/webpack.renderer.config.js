@@ -23,7 +23,9 @@ let whiteListedModules = ['vue']
 let rendererConfig = {
   devtool: '#cheap-module-eval-source-map',
   entry: {
-    renderer: path.join(__dirname, '../src/renderer/main.js')
+    renderer: path.join(__dirname, '../src/renderer/main.js'),
+    'rsa-generator': path.join(__dirname, '../src/renderer/tasks/RsaGenerator.js'),
+    'encryption': path.join(__dirname, '../src/renderer/tasks/Encryption.js'),
   },
   externals: [
     ...Object.keys(dependencies || {}).filter(d => !whiteListedModules.includes(d))
@@ -139,6 +141,47 @@ let rendererConfig = {
   },
   target: 'electron-renderer'
 }
+
+// This allows keys defined in the entry option to be mapped to static files
+Object.keys(rendererConfig.entry).forEach(key => {
+  // Renderer is required, but 'renderer.ejs' file exists as index, therefore omit it (It's loaded already anyways
+  if(key !== 'renderer'){
+      const plugin = new HtmlWebpackPlugin({
+          filename: key + '.html',
+          template: path.resolve(__dirname, `../src/${key}.ejs`),
+          minify: {
+              collapseWhitespace: true,
+              removeAttributeQuotes: true,
+              removeComments: true
+          },
+          chunks: ['vendor', key, 'components'],
+          nodeModules: process.env.NODE_ENV !== 'production'
+              ? path.resolve(__dirname, '../node_modules')
+              : false
+      });
+
+      rendererConfig.plugins.push(plugin)
+  }
+});
+
+
+/*
+// Single file loading example
+const plugin = new HtmlWebpackPlugin({
+    filename: 'bg.html',
+    template: path.resolve(__dirname, `../src/bg.ejs`),
+    minify: {
+        collapseWhitespace: true,
+        removeAttributeQuotes: true,
+        removeComments: true
+    },
+    chunks: ['vendor', 'bg'],
+    nodeModules: process.env.NODE_ENV !== 'production'
+        ? path.resolve(__dirname, '../node_modules')
+        : false
+});
+
+rendererConfig.plugins.push(plugin);*/
 
 /**
  * Adjust rendererConfig for development settings

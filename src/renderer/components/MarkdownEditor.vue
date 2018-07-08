@@ -122,7 +122,7 @@
       FILE_ERROR,
       RSA_KEYS_CREATED,
       CREATE_RSA_KEYS,
-    } from '../../utils/Constants';
+    } from '../../shared/utils/Constants';
 
     const ace = require('brace');
     require('brace/mode/markdown');
@@ -326,6 +326,8 @@
           this.alert.text = 'Keys created, you can view them in the "Encryption Settings" window. Please save them somewhere in your pc.';
           this.alert.visible = true;
           this.isLoading = false;
+
+          this.rsaModal = true;
         });
 
         bus.$on(FILE_ERROR, (error) => {
