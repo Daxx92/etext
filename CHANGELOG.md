@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.1 (2018-07-08)
+
+#### TL:DR - *Performance Improvements*
+
+Better error messages & file filters
+
+### Features
+
+- Encryption/Decryption of file contents are performed in a background process
+- RSA Keys are now generated in a background process
+
+#### Issues Solved
+
+- [#11: Editor freezes when creating RSA Keys](https://bitbucket.org/miscdx/etext/issues/11/editor-freezes-when-creating-rsa-keys)
+    - *Commit: [a20aa97c4c46](https://bitbucket.org/miscdx/etext/commits/a20aa97c4c46)*
+    
+----
+
 ## 0.3.0 (2018-07-03)
 
 #### TL:DR - *QoL Enhancements*

@@ -1,4 +1,4 @@
-# e-text v-0.3.0
+# e-text v-0.4.1
 
 ***Markdown editor with encrypting capabilities***
 
