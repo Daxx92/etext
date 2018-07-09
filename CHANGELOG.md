@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.1 (2018-07-08)
+## 0.4.2 (2018-07-08)
 
 #### TL:DR - *Performance Improvements*
 
@@ -15,6 +15,8 @@ Better error messages & file filters
 
 - [#11: Editor freezes when creating RSA Keys](https://github.com/Daxx92/etext/issues/11)
     - *Commit: [a20aa97c4c46](https://github.com/Daxx92/etext/commit/a20aa97c4c46)*
+- [#10: Horizontal bar on editor](https://github.com/Daxx92/etext/issues/10)
+    - *Commit: [a20aa97c4c46](https://github.com/Daxx92/etext/commit/3b8d4dbaedcb)*
     
 ----
 
