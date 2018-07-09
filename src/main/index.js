@@ -21,14 +21,14 @@ function initBackgroundProcesses() {
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(RsaGenerator.domReadyEventName, (event) => {
     // @TODO: What's the point? How to prevent user to access the app while not done?
-    console.log(RsaGenerator.domReadyEventName);
+    RsaGenerator.show(false);
   });
 
   Encryption.createWindow();
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(Encryption.domReadyEventName, (event) => {
     // @TODO: What's the point? How to prevent user to access the app while not done?
-    console.log(Encryption.domReadyEventName);
+    Encryption.show(false);
   });
 }
 function destroyBackgroundProcesses() {
@@ -63,11 +63,17 @@ function createWindow() {
     height: 563,
     useContentSize: true,
     width: 1000,
+    show: false,
   });
 
   mainWindow.loadURL(winURL);
 
   initBackgroundProcesses();
+
+  // Once the dom is ready, we can display the window
+  ipcMain.once('e-text.ready', () => {
+    mainWindow.show();
+  });
 
   mainWindow.on('closed', () => {
     destroyBackgroundProcesses();
