@@ -12,9 +12,7 @@
             </b-alert>
         </div>
 
-        <loading :active.sync="isLoading"
-                 :can-cancel="false"
-                 :is-full-page="true"></loading>
+        <loading :active="isLoading"></loading>
 
         <div class="h-100 d-flex bd-highlight align-content-stretch flex-column">
 
@@ -102,12 +100,14 @@
 
 <script>
     import {ipcRenderer} from 'electron'; // eslint-disable-line
-    import Loading from 'vue-loading-overlay';
+    // import Loading from 'vue-loading-overlay';
 
     import Vue from 'vue';
 
     import marked from 'marked';
     import highlight from 'highlight.js';
+
+    import Loading from './Loading';
 
     import {
       SHOW_OPEN_DIALOG,
