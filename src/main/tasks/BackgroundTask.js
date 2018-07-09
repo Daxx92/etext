@@ -5,13 +5,12 @@ import { mergeDeep, getPathFor } from '../../shared/utils/Helpers';
 export default class BackgroundTask {
   constructor(file, domReadyEventName, eventNames, options) {
     // Variables
-    const show = process.env.SHOW_BACKGROUND_TASK_WINDOWS === '1';
     const defaultOptions = {
       width: 400,
       height: 200,
       defaultEncoding: 'utf-8',
       nodeIntegration: false,
-      show,
+      show: false,
     };
 
     // Set fields
@@ -20,6 +19,16 @@ export default class BackgroundTask {
     this.eventNames = eventNames;
     this.options = mergeDeep(defaultOptions, options);
     this.window = null;
+  }
+
+  show(force) {
+    if (force || process.env.SHOW_BACKGROUND_TASK_WINDOWS === '1') {
+      this.window.show();
+    }
+  }
+
+  hide() {
+    this.window.hide();
   }
 
   windowExists() {
