@@ -2,6 +2,8 @@ import {app, BrowserWindow, ipcMain} from 'electron'; // eslint-disable-line
 import path from 'path';
 
 import * as FileEvents from './ipc/fileEvents';
+import SplashScreen from './SplashScreen';
+
 import RsaGenerator from './tasks/RsaGenerator';
 import Encryption from './tasks/Encryption';
 
@@ -20,15 +22,13 @@ function initBackgroundProcesses() {
   RsaGenerator.createWindow();
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(RsaGenerator.domReadyEventName, (event) => {
-    // @TODO: What's the point? How to prevent user to access the app while not done?
-    RsaGenerator.show(false);
+    SplashScreen.webContents().send('loading-finished');
   });
 
   Encryption.createWindow();
   // eslint-disable-next-line no-unused-vars
   ipcMain.on(Encryption.domReadyEventName, (event) => {
-    // @TODO: What's the point? How to prevent user to access the app while not done?
-    Encryption.show(false);
+    SplashScreen.webContents().send('loading-finished');
   });
 }
 function destroyBackgroundProcesses() {
@@ -36,6 +36,8 @@ function destroyBackgroundProcesses() {
   RsaGenerator.destroyWindow();
   // Close rsa window
   Encryption.destroyWindow();
+  // Close splash screen if it exists
+  SplashScreen.destroyWindow();
 }
 
 /** *********************************************************************************************
@@ -47,6 +49,19 @@ FileEvents.registerCreateRsaKeysEvent();
 
 
 /** *********************************************************************************************
+ * Splash Screen
+ ********************************************************************************************* */
+
+function splashScreen() {
+  SplashScreen.createWindow();
+
+  // Once the dom is ready, we can display the window
+  ipcMain.once(SplashScreen.domReadyEventName, () => {
+    SplashScreen.show(true);
+  });
+}
+
+/** *********************************************************************************************
  * APP
  ********************************************************************************************* */
 
@@ -56,14 +71,18 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`;
 
 function createWindow() {
+  // Setup splash screen
+  splashScreen();
+
   /**
-     * Initial window options
-     */
+  * Initial window options
+  */
   mainWindow = new BrowserWindow({
-    height: 563,
+    height: 1200,
     useContentSize: true,
     width: 1000,
     show: false,
+    center: true,
   });
 
   mainWindow.loadURL(winURL);
@@ -73,6 +92,8 @@ function createWindow() {
   // Once the dom is ready, we can display the window
   ipcMain.once('e-text.ready', () => {
     mainWindow.show();
+    // Destroy the splash screen
+    SplashScreen.destroyWindow();
   });
 
   mainWindow.on('closed', () => {
