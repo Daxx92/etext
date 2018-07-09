@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.5.0 (2018-07-09)
+
+#### TL:DR - *Splash Screen*
+
+Added splash screen, updated markdown css styles to 'Terminal'
+
+### Features
+
+- Display Splash screen while app loads
+- Updated editor styles (`Terminal` instead of `Monokai`)
+- Loading overlay now uses main loader style
+
+#### Issues Solved
+
+- [#12: White Screen => Splash Screen](https://github.com/Daxx92/etext/issues/12)
+    - *Commit: [ecfd15286557](https://github.com/Daxx92/etext/commit/ecfd15286557)*
+    
+----
+
 ## 0.4.2 (2018-07-08)
 
 #### TL:DR - *Performance Improvements*
@@ -17,8 +36,6 @@ Better error messages & file filters
     - *Commit: [a20aa97c4c46](https://github.com/Daxx92/etext/commit/a20aa97c4c46)*
 - [#10: Horizontal bar on editor](https://github.com/Daxx92/etext/issues/10)
     - *Commit: [a20aa97c4c46](https://github.com/Daxx92/etext/commit/3b8d4dbaedcb)*
-    
-----
 
 ## 0.3.0 (2018-07-03)
 

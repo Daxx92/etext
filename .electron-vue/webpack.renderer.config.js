@@ -165,23 +165,23 @@ Object.keys(rendererConfig.entry).forEach(key => {
 });
 
 
-/*
+
 // Single file loading example
-const plugin = new HtmlWebpackPlugin({
-    filename: 'bg.html',
-    template: path.resolve(__dirname, `../src/bg.ejs`),
+const splashScreen = new HtmlWebpackPlugin({
+    filename: 'splash-screen.html',
+    template: path.resolve(__dirname, `../src/splash-screen.ejs`),
     minify: {
         collapseWhitespace: true,
         removeAttributeQuotes: true,
         removeComments: true
     },
-    chunks: ['vendor', 'bg'],
+    chunks: ['vendor'],
     nodeModules: process.env.NODE_ENV !== 'production'
         ? path.resolve(__dirname, '../node_modules')
         : false
 });
 
-rendererConfig.plugins.push(plugin);*/
+rendererConfig.plugins.push(splashScreen);
 
 /**
  * Adjust rendererConfig for development settings

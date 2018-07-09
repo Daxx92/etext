@@ -18,5 +18,23 @@
     </script>
 
     <!-- webpack builds are automatically injected -->
+
+    <script type="text/javascript">
+        const ipc = require('electron').ipcRenderer;
+
+        // Checks when the DOM is ready
+        function ready(fn) {
+            if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+                fn();
+            } else {
+                document.addEventListener('DOMContentLoaded', fn);
+            }
+        }
+        // Ready, tell the main process
+        ready(() => {
+            ipc.send('e-text.ready');
+        });
+    </script>
+
   </body>
 </html>
