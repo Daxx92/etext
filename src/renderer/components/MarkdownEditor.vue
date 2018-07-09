@@ -121,7 +121,7 @@
 
     const ace = require('brace');
     require('brace/mode/markdown');
-    require('brace/theme/monokai');
+    require('brace/theme/terminal');
 
     const bus = new Vue();
 
@@ -256,7 +256,7 @@
 
         this.aceEditor = ace.edit(editor);
         this.aceEditor.getSession().setMode('ace/mode/markdown');
-        this.aceEditor.setTheme('ace/theme/monokai');
+        this.aceEditor.setTheme('ace/theme/terminal');
         this.aceEditor.getSession().setUseWrapMode(true);
         this.aceEditor.getSession().setWrapLimitRange(80, 100);
         this.aceEditor.$blockScrolling = Infinity;
